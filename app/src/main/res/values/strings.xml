@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">My007</string>
+
+    <!-- 描述数字键盘按下 -->
+    <string name="numeric_keyboard_down">numeric keyboard down</string>
+    <!-- 描述数字键盘弹起 -->
+    <string name="numeric_keyboard_up">numeric keyboard up</string>
+    <!-- 描述数字键盘取消 -->
+    <string name="numeric_keyboard_cancel">numeric keyboard cancel</string>
+
+    <string name="login">Login</string>
+    <string name="reset_pwd">Reset password</string>
+    <string name="please_input_pwd">Input password</string>
+    <string name="please_input_pwd_again">Input password again</string>
+    <string name="not_equals">The two passwords differ.</string>
+    <string name="setting_pwd_success">Success.</string>
+    <string name="verify_err">Error %d, please try again.</string>
+    <string name="use_pwd_login">Please use password to login.</string>
+    <string name="pwd_err">Password error.</string>
+    <string name="grant_permission_manual">请手动授予权限</string>
+    <string name="unlock">Enter Password to Unlock</string>
+
+</resources>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:gravity="center">
+    <!-- 提示信息 -->
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/top_margin"
+        android:text="@string/please_input_pwd"
+        android:textColor="@color/divider_color"
+        android:textSize="@dimen/text_24sp" />
+    <!-- 密码显示框 -->
+    <LinearLayout
+        android:id="@+id/ll_pass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_info"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/margin_10dp"
+        android:gravity="center_horizontal"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal">
+
+        <com.antitheft.alarm.view.PasswordTextView
+            android:id="@+id/et_pwd1"
+            style="@style/style_edit" />
+
+        <com.antitheft.alarm.view.PasswordTextView
+            android:id="@+id/et_pwd2"
+            style="@style/style_edit"
+            android:layout_marginLeft="@dimen/margin_15dp" />
+
+        <com.antitheft.alarm.view.PasswordTextView
+            android:id="@+id/et_pwd3"
+            style="@style/style_edit"
+            android:layout_marginLeft="@dimen/margin_15dp" />
+
+        <com.antitheft.alarm.view.PasswordTextView
+            android:id="@+id/et_pwd4"
+            style="@style/style_edit"
+            android:layout_marginLeft="@dimen/margin_15dp" />
+    </LinearLayout>
+    <!-- 数字键盘 -->
+    <com.antitheft.alarm.view.NumericKeyboard
+        android:id="@+id/keyboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_80dp"
+        android:focusableInTouchMode="false"
+        app:circle_border_color="@color/divider_color"
+        app:number_color="@android:color/black"
+        app:circle_pressed_color="@color/bnt_color"
+        app:number_size="@dimen/text_36sp"
+        app:stroke_width="@dimen/el_8px"/>
+
+    <FrameLayout
+        android:id="@+id/fingerprtint_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="@dimen/margin_80dp"
+        android:layout_marginBottom="@dimen/margin_80dp"
+        android:background="#10ffffff"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleY="0.5"
+            android:scaleX="0.5"
+            android:background="@android:color/transparent"
+            android:src="@drawable/fingerprint"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+</RelativeLayout>

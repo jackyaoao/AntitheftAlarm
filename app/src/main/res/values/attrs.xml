@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NumericKeyboard">
+        <attr name="stroke_width" format="dimension" />
+        <attr name="number_color" format="color" />
+        <attr name="number_size" format="dimension" />
+        <attr name="circle_border_color" format="color" />
+        <attr name="circle_pressed_color" format="color" />
+        <attr name="circle_radius" format="dimension" />
+        <attr name="fingerprint_drawable" format="reference|color" />
+    </declare-styleable>
+</resources>

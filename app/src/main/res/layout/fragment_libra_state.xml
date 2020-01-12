@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".fragments.LibraConnectStateFragment">
+
+    <ImageView
+        android:id="@+id/bnt_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="@dimen/top_margin"
+        android:layout_marginRight="@dimen/right_margin"
+        android:src="@drawable/ic_setting" />
+
+    <TextView
+        android:id="@+id/state_str"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bnt_setting"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/top_margin"
+        android:layout_marginBottom="@dimen/bottom_margin"
+        android:text="MY007 Lost"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_30sp" />
+
+    <ImageView
+        android:id="@+id/libra_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/state_str"
+        android:layout_centerInParent="true"
+        android:src="@drawable/libra_connected" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/libra_state"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="@dimen/left_margin"
+        android:layout_marginRight="@dimen/right_margin"
+        android:layout_marginTop="@dimen/margin_15dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/state_desc1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/libra_state"
+            android:layout_centerHorizontal="true"
+            android:lineSpacingMultiplier = "1.2"
+            android:textSize="@dimen/text_18sp"
+            android:layout_marginTop="@dimen/top_margin"
+            android:textColor="@android:color/white"
+            android:text="Oops~please make sure:" />
+
+        <TextView
+            android:id="@+id/state_desc2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:lineSpacingMultiplier = "1.2"
+            android:layout_marginTop="@dimen/margin_10dp"
+            android:text="1. Bluetooth ON"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_18sp" />
+
+        <TextView
+            android:id="@+id/state_desc3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:lineSpacingMultiplier = "1.2"
+            android:layout_marginTop="@dimen/margin_10dp"
+            android:text="2. MY007 ON"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_18sp" />
+
+        <TextView
+            android:id="@+id/state_desc4"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:lineSpacingMultiplier = "1.2"
+            android:layout_marginTop="@dimen/margin_10dp"
+            android:text="3. MY007 close to your phone"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/progress_view"
+        android:layout_width="230dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:background="@drawable/button_border">
+
+        <ImageView
+            android:id="@+id/progress"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/margin_15dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_progress"
+            />
+
+        <TextView
+            android:layout_alignLeft="@id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connecting..."
+            android:textSize="@dimen/text_18sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/margin_15dp"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

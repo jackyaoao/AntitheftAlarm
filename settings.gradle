@@ -1,0 +1,2 @@
+include ':app', ':bluetoothKit', ':biometriclib'
+rootProject.name='AntitheftAlarm'

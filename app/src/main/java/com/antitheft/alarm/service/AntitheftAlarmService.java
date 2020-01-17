@@ -3,6 +3,8 @@ package com.antitheft.alarm.service;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -10,7 +12,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -55,6 +59,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 import static com.antitheft.alarm.utils.Const.USB_DISCONNECTED_W_EVENT;
 
 public class AntitheftAlarmService extends Service {
@@ -62,7 +70,8 @@ public class AntitheftAlarmService extends Service {
     private static final String TAG = AntitheftAlarmService.class.getSimpleName();
 
     public static final int ANTITHEFTALARMSERVICE_STATUS = 1;
-
+    public static final String CHANNEL_ID = "antitheft";
+    public static final int INT_CHANNEL_ID = 0x200;
     public static final String BLE_WRITE_ACTION = "ble.write.action";
     public static final String BLE_READ_ACTION = "ble.read.action";
     public static final String BLE_NOTIFY_ACTION = "ble.notify.action";
@@ -152,9 +161,11 @@ public class AntitheftAlarmService extends Service {
                 alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(alarmIntent);
             } else if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
-                Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show();
             } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
-                Toast.makeText(context, "Power Disconnected", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "Power Disconnected", Toast.LENGTH_SHORT).show();
+                if (LibraState.getInstance().getLibraState() != Const.STATUS_DEVICE_CONNECTED)
+                    return;
                 try {
                     mBinder.write(LibraState.getInstance().getMac(), LibraState.getInstance().getDetailItem(),
                             SystemUtils.getSendContent(USB_DISCONNECTED_W_EVENT), USB_DISCONNECTED_W_EVENT);
@@ -362,32 +373,47 @@ public class AntitheftAlarmService extends Service {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateNotification() {
         String text = "";
-        Notification status = new Notification();
         int alarmType = LibraState.getInstance().getAlarmType();
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notify_layout);
         views.setImageViewResource(R.id.icon, R.mipmap.ic_logo);
         if (alarmType == Const.ALARM_TYPE_PROTECTION) {
             text = "Protection";
-            status.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         } else if (alarmType == Const.ALARM_TYPE_ALARM) {
             text = "Alarm";
-            status.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         } else if (alarmType == Const.ALARM_TYPE_FIND) {
             text = "Looking for phone.";
-            status.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         } else if (alarmType == Const.ALARM_TYPE_UNKNOWN) {
             text = "Disconnected";
         }
         views.setTextViewText(R.id.alarmText, text);
-        status.contentView = views;
-        status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.mipmap.ic_logo;
-        status.contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, SplashActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_CANCEL_CURRENT);
-        startForeground(ANTITHEFTALARMSERVICE_STATUS, status);
+
+        String CHANNEL_ONE_NAME = "Channel One";
+        NotificationChannel notificationChannel = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notificationChannel = new NotificationChannel(CHANNEL_ID,
+                    CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(notificationChannel);
+        }
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, SplashActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = new Notification.Builder(this)
+                .setChannelId(CHANNEL_ID)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setSmallIcon(R.mipmap.ic_logo)
+                .setTicker(getText(R.string.app_name))
+                .setContentText(text)
+                .setContentIntent(pendingIntent)
+                .build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        startForeground(ANTITHEFTALARMSERVICE_STATUS, notification);
     }
 
     private IAntitheftAlarmService.Stub mBinder = new IAntitheftAlarmService.Stub() {
@@ -400,8 +426,6 @@ public class AntitheftAlarmService extends Service {
                 new RemoteCallbackList<>();
 
         private BiometricPromptManager biometricPromptManager = BiometricPromptManager.from(AppContext.getContext());
-
-        public Handler uiHandler = new Handler(AppContext.getContext().getMainLooper());
 
         private AntitheftAlarmService getService() {
             return AntitheftAlarmService.this;
@@ -531,7 +555,9 @@ public class AntitheftAlarmService extends Service {
 
         @Override
         public void releaseMediaPlayer() {
-            mediaPlayer.release();
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
             mediaPlayer = null;
         }
 

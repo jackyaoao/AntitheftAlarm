@@ -5,16 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.SparseArray;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import android.widget.Toast;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.antitheft.alarm.AppContext;
 import com.antitheft.alarm.R;
-import com.antitheft.alarm.btkit.BluetoothManager;
 import com.antitheft.alarm.fragments.AuthorizationFragment;
 import com.antitheft.alarm.fragments.BaseFragment;
 import com.antitheft.alarm.fragments.CreateAccountFragment;
@@ -28,12 +22,17 @@ import com.antitheft.alarm.fragments.SettingFragment;
 import com.antitheft.alarm.listener.IFragmentInteractionListener;
 import com.antitheft.alarm.model.DetailItem;
 import com.antitheft.alarm.model.LibraState;
+import com.antitheft.alarm.permission.OnPermission;
+import com.antitheft.alarm.permission.PermissionUtils;
+import com.antitheft.alarm.permission.SimplePermissions;
 import com.antitheft.alarm.service.AntitheftAlarmService;
 import com.antitheft.alarm.utils.Const;
 import com.antitheft.alarm.utils.Log;
 import com.antitheft.alarm.utils.MyPrefs;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.search.SearchResult;
+
+import java.util.Arrays;
 import java.util.List;
 
 import static com.antitheft.alarm.utils.Const.AUTHORIZATION_ID;
@@ -49,7 +48,13 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
     private static final String TAG = "LibraMainActivity";
     private SparseArray<BaseFragment> fragmentArrayList = new SparseArray<>();
     private Object arg = null;
-    private List<String> deniedList;
+    public List<String> deniedList;
+
+    private static final String PERMISSIONS[] = {
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.BLUETOOTH",
+            "android.permission.BLUETOOTH_ADMIN"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +77,12 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
     protected void onResume() {
         super.onResume();
         Log.i(TAG + " onResume");
-
+        autoObtainPermission(Arrays.asList(PERMISSIONS));
+        if (!SimplePermissions.isHasPermission(this, PERMISSIONS)) {
+            if (this.deniedList != null) {
+                this.autoObtainPermission(this.deniedList);
+            }
+        }
     }
 
     @Override
@@ -318,7 +328,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
         }
     }
 
-    /*private void autoObtainPermission(List<String> permissionList) {
+    public void autoObtainPermission(List<String> permissionList) {
         SimplePermissions.with(this)
             .constantRequest()
             .permission(permissionList)
@@ -337,5 +347,5 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
                     deniedList = denied;
                 }
             });
-    }*/
+    }
 }

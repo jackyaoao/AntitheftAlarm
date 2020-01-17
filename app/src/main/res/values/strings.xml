@@ -17,7 +17,7 @@
     <string name="verify_err">Error %d, please try again.</string>
     <string name="use_pwd_login">Please use password to login.</string>
     <string name="pwd_err">Password error.</string>
-    <string name="grant_permission_manual">请手动授予权限</string>
     <string name="unlock">Enter Password to Unlock</string>
+    <string name="grant_permission_manual">Please grant permissions manually.</string>
 
 </resources>

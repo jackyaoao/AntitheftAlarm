@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             style="@style/style_text"
             android:padding="@dimen/margin_15dp"
-            android:text="Pairing" />
+            android:text="@string/pairing" />
     </LinearLayout>
 
     <View
@@ -48,10 +48,34 @@
             android:layout_height="wrap_content"
             style="@style/style_text"
             android:padding="@dimen/margin_15dp"
-            android:text="Reset Password" />
+            android:text="@string/reset_pwd" />
     </LinearLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#e1e1e1"/>
+
+    <LinearLayout
+        android:id="@+id/manual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_manual"
+            android:padding="@dimen/margin_15dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/style_text"
+            android:padding="@dimen/margin_15dp"
+            android:text="@string/manual" />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#e1e1e1"/>
+
 </LinearLayout>

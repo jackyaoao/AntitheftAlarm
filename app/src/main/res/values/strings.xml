@@ -19,5 +19,29 @@
     <string name="pwd_err">Password error.</string>
     <string name="unlock">Enter Password to Unlock</string>
     <string name="grant_permission_manual">Please grant permissions manually.</string>
+    <string name="auth">To unlock the Libra conveniently, we need your permission use your preset finger print,and screen unlock passcode.</string>
+    <string name="allow">Allow</string>
+    <string name="nofound">My007 no found</string>
+    <string name="bt_tip">Please keep your mobile phone bluetooth on.</string>
+    <string name="libra_tip">Please keep MY007 on and close to your phone.</string>
+    <string name="search">Searching...</string>
+    <string name="protection">Protection Activated</string>
+    <string name="lost">MY007 Lost</string>
+    <string name="lost1">Oops~please make sure:</string>
+    <string name="lost2">1. Bluetooth ON</string>
+    <string name="lost3">2. MY007 ON</string>
+    <string name="lost4">3. MY007 close to your phone</string>
+    <string name="pairing">Pairing</string>
+    <string name="manual">Manual</string>
+    <string name="connected">MY007 Connected</string>
+    <string name="connected1">Charge your device through MY007 to protect.</string>
+    <string name="connected2">The alarm will go on if charger is unplugged.</string>
+    <string name="connecting">Connecting...</string>
+    <string name="privacy_exit">Exit</string>
+    <string name="privacy_agree">Agree</string>
+    <string name="users_note">Users Note</string>
+    <string name="privacy_tips_key1">Terms of Use</string>
+    <string name="privacy_tips_key2">Privacy Policy</string>
+    <string name="privacy_tips">Welcome to My007! In order to protect your privacy and use security, please read our Terms of Use and Privacy Policy carefully. Do not use this app until you have confirmed your full understanding and agreement. Thank you!</string>
 
 </resources>

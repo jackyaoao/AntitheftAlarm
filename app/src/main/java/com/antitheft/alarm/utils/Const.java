@@ -39,6 +39,11 @@ final public class Const {
     public static final String APPID = "app_id";
     public static final String BIOMETRIC = "biometric";
     public static final String UNLOCK = "unlock";
+    /**privacy*/
+    public static final String PRIVACY = "privacy";
+    public static final String VERSION_CODE = "vcode";
+    /**power connected*/
+    public static final String POWER_CONNECTED = "power";
     /** save key end*/
 
     /** anti-theft service name*/
@@ -52,18 +57,18 @@ final public class Const {
 
     /** Fragment IDS*/
     public static final int CREATE_ACCOUNT_ID = 0x100; //256
-    public static final int INPUT_PASSWORD_ID = 0x101;
-    public static final int DEVICE_PAIRING_ID = 0x102;
-    public static final int DEVICE_FOUND_ID = 0x103;
-    public static final int AUTHORIZATION_ID = 0x104;
-    public static final int LIBRA_CONNECTED_STATE_ID = 0x105;
-    public static final int LIBRA_PROTECTED_ID = 0x106;
-    public static final int SETTING_FRAGMENT_ID = 0x107;
+    public static final int INPUT_PASSWORD_ID = 0x101;//257
+    public static final int DEVICE_PAIRING_ID = 0x102;//258
+    public static final int DEVICE_FOUND_ID = 0x103;//259
+    public static final int AUTHORIZATION_ID = 0x104;//260
+    public static final int LIBRA_CONNECTED_STATE_ID = 0x105;//261
+    public static final int LIBRA_PROTECTED_ID = 0x106;//262
+    public static final int SETTING_FRAGMENT_ID = 0x107;//263
 
     /** BLE COMMNUICATION EVENT*/
 
-    public static final int BLE_REQUEST_SUCCESS = Constants.REQUEST_SUCCESS;
     public static final String BLE_EVENT = "event";
+    public static final int BLE_REQUEST_SUCCESS = Constants.REQUEST_SUCCESS;
     public static final int BLE_CONNECT_W_EVENT = 0x200;              //WRITE //512
     public static final int BLE_CONNECT_ACK_R_EVENT = 0x201;          //READ
     public static final int BLE_REMOVE_ALARM_W_EVENT = 0x202;         //WRITE

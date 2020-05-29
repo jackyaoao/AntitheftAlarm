@@ -1,11 +1,13 @@
 package com.antitheft.alarm.activity;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.widget.Toast;
 import androidx.fragment.app.FragmentTransaction;
 import com.antitheft.alarm.R;
@@ -49,6 +51,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
     private SparseArray<BaseFragment> fragmentArrayList = new SparseArray<>();
     private Object arg = null;
     public List<String> deniedList;
+    private long curVersionCode = 0;
 
     private static final String PERMISSIONS[] = {
             "android.permission.ACCESS_FINE_LOCATION",
@@ -70,6 +73,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
         IntentFilter filter = new IntentFilter();
         filter.addAction(AntitheftAlarmService.BLE_STATE_ACTION);
         filter.addAction(AntitheftAlarmService.BLE_CONNECT_STATUS_ACTION);
+        filter.addAction(AntitheftAlarmService.BLE_POWER_CONNECTED_ACTION);
         registerReceiver(bleConnectStateReceiver, filter);
     }
 
@@ -115,11 +119,9 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
         }
     }
 
-
-
     @Override
-    public void onBond() {
-        Log.i(TAG + " onBond");
+    public void onBound() {
+        Log.i(TAG + " onBound");
         int id = 0;
         if (LibraState.getInstance().getAlarmType() == Const.ALARM_TYPE_ALARM ||
                 LibraState.getInstance().getAlarmType() == Const.ALARM_TYPE_FIND) {
@@ -131,7 +133,8 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
         } else if (mac == null) {
             id = DEVICE_PAIRING_ID;
         } else {
-            if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_CONNECTED) {
+            if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_CONNECTED &&
+                    MyPrefs.getInstance().getBoolean(Const.POWER_CONNECTED)) {
                 id = LIBRA_PROTECTED_ID;
             } else {
                 id = LIBRA_CONNECTED_STATE_ID;
@@ -171,7 +174,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onBackPressed() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (FragmentStack.getInstance().size() > 0 &&
                 fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onBackPressed");
@@ -192,11 +195,17 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
                 } else if (action.equals(AntitheftAlarmService.BLE_CONNECT_STATUS_ACTION)) {
                     String mac = intent.getStringExtra(Const.CONNECTED_MAC);
                     int status = intent.getIntExtra(Const.CONNECT_STATUS, Const.STATUS_UNKNOWN);
-                    int fragmentId = FragmentStack.getInstance().getTail();
+                    int fragmentId = FragmentStack.getInstance().getTop();
                     if (fragmentArrayList.get(fragmentId) != null) {
                         Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onConnectStatusChanged");
                         fragmentArrayList.get(fragmentId).onConnectStatusChanged(mac, status);
                     }
+                } else if (action.equals(AntitheftAlarmService.BLE_POWER_CONNECTED_ACTION)) {
+                    int fragmentId = FragmentStack.getInstance().getTop();
+                    if (fragmentArrayList.get(fragmentId) != null) {
+                        fragmentArrayList.get(fragmentId).onPowerChanged(MyPrefs.getInstance().getBoolean(Const.POWER_CONNECTED));
+                    }
+
                 }
             }
         }
@@ -204,7 +213,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onUsePassword() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onUsePassword");
             fragmentArrayList.get(fragmentId).onUsePassword();
@@ -213,7 +222,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onSucceeded() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onSucceeded");
             fragmentArrayList.get(fragmentId).onSucceeded();
@@ -222,7 +231,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onFailed() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onFailed");
             fragmentArrayList.get(fragmentId).onFailed();
@@ -231,7 +240,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onError(int code, String reason) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onError");
             fragmentArrayList.get(fragmentId).onError(code, reason);
@@ -240,7 +249,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onSearchStarted() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onSearchStarted");
             fragmentArrayList.get(fragmentId).onSearchStarted();
@@ -249,7 +258,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onDevicesFounded(List<SearchResult> devices) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onDevicesFounded");
             fragmentArrayList.get(fragmentId).onDevicesFounded(devices);
@@ -258,7 +267,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onSearchStopped() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onSearchStopped");
             fragmentArrayList.get(fragmentId).onSearchStopped();
@@ -267,7 +276,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onSearchCanceled() {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onSearchCanceled");
             fragmentArrayList.get(fragmentId).onSearchCanceled();
@@ -276,7 +285,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onConnectedResponse(int code, BleGattProfile profile) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onConnectedResponse");
             fragmentArrayList.get(fragmentId).onConnectedResponse(code, profile);
@@ -285,16 +294,16 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onReadResponse(int code, byte[] data) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
-            Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onReadResponse");
+            Log.i(TAG + "-" + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onReadResponse");
             fragmentArrayList.get(fragmentId).onReadResponse(code, data);
         }
     }
 
     @Override
     public void onWriteResponse(int code, int event) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onWriteResponse");
             fragmentArrayList.get(fragmentId).onWriteResponse(code, event);
@@ -303,7 +312,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onNotify(DetailItem item, byte[] data) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onNotify");
             fragmentArrayList.get(fragmentId).onNotify(item, data);
@@ -312,7 +321,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onNotifyResponse(int code) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onNotifyResponse");
             fragmentArrayList.get(fragmentId).onNotifyResponse(code);
@@ -321,7 +330,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
 
     @Override
     public void onUnNotifyResponse(int code) {
-        int fragmentId = FragmentStack.getInstance().getTail();
+        int fragmentId = FragmentStack.getInstance().getTop();
         if (fragmentArrayList.get(fragmentId) != null) {
             Log.i(TAG + fragmentArrayList.get(fragmentId).getClass().getSimpleName() + " onUnNotifyResponse");
             fragmentArrayList.get(fragmentId).onUnNotifyResponse(code);
@@ -347,5 +356,32 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
                     deniedList = denied;
                 }
             });
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        if (action ==KeyEvent.ACTION_DOWN &&
+                (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                        event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_MUTE)) {
+            return true;
+        }
+        if (action== KeyEvent.ACTION_UP &&
+                (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                        event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_MUTE)) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

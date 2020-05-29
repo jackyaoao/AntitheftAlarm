@@ -6,7 +6,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
@@ -54,6 +59,26 @@ public class SystemUtils {
 		displays[0] = dm.widthPixels;//屏幕宽度(单位:px)
 		displays[1] = dm.heightPixels;//屏幕高度
 		return displays;
+	}
+
+	/**
+	 * 获取当前app version code
+	 */
+	public static long getAppVersionCode(Context context) {
+		long appVersionCode = 0;
+		try {
+			PackageInfo packageInfo = context.getApplicationContext()
+					.getPackageManager()
+					.getPackageInfo(context.getPackageName(), 0);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				appVersionCode = packageInfo.getLongVersionCode();
+			} else {
+				appVersionCode = packageInfo.versionCode;
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.i("[getAppVersionCode]-error：" + e.getMessage());
+		}
+		return appVersionCode;
 	}
 
 	public static void showToast(String message) {
@@ -299,5 +324,19 @@ public class SystemUtils {
 			return runningTaskInfos.get(0).topActivity.getClassName().contains("AlarmHandlerActivity");
 		else
 			return false;
+	}
+
+	public static final boolean IS_CHARGE_DISABLE = true;
+
+	public static boolean isChargingDisable(Context context) {
+		return IS_CHARGE_DISABLE && isCharging(context);
+	}
+
+	private static boolean isCharging(Context context) {
+		Intent batteryBroadcast = context.registerReceiver(null,
+				new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+		// 0 means we are discharging, anything else means charging
+		boolean isCharging = batteryBroadcast.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) != 0;
+		return isCharging;
 	}
 }

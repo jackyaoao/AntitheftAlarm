@@ -12,9 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,7 +20,6 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.antitheft.alarm.activity.AlarmHandlerActivity;
 import com.antitheft.alarm.AppContext;
@@ -91,7 +88,9 @@ public class AntitheftAlarmService extends Service {
 
     public static final String BLE_STATE_ACTION = "ble.state.action";
     public static final String BLE_CONNECT_STATUS_ACTION = "ble.connect.status.action";
+    public static final String BLE_POWER_CONNECTED_ACTION = "ble.power.connected.action";
     private boolean isRegister = false;
+    private Handler handler = new Handler();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -161,17 +160,13 @@ public class AntitheftAlarmService extends Service {
                 alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(alarmIntent);
             } else if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
-//                Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show();
+                MyPrefs.getInstance().put(Const.POWER_CONNECTED, true);
+                Intent it = new Intent();
+                it.setAction(BLE_POWER_CONNECTED_ACTION);
+                sendBroadcast(it);
             } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
-//                Toast.makeText(context, "Power Disconnected", Toast.LENGTH_SHORT).show();
-                if (LibraState.getInstance().getLibraState() != Const.STATUS_DEVICE_CONNECTED)
-                    return;
-                try {
-                    mBinder.write(LibraState.getInstance().getMac(), LibraState.getInstance().getDetailItem(),
-                            SystemUtils.getSendContent(USB_DISCONNECTED_W_EVENT), USB_DISCONNECTED_W_EVENT);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                MyPrefs.getInstance().put(Const.POWER_CONNECTED, false);
             }
         }
     };
@@ -373,7 +368,6 @@ public class AntitheftAlarmService extends Service {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void updateNotification() {
         String text = "";
         int alarmType = LibraState.getInstance().getAlarmType();
@@ -391,9 +385,8 @@ public class AntitheftAlarmService extends Service {
         views.setTextViewText(R.id.alarmText, text);
 
         String CHANNEL_ONE_NAME = "Channel One";
-        NotificationChannel notificationChannel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            notificationChannel = new NotificationChannel(CHANNEL_ID,
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
                     CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
@@ -404,14 +397,16 @@ public class AntitheftAlarmService extends Service {
         Intent intent = new Intent(this, SplashActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        Notification notification = new Notification.Builder(this)
-                .setChannelId(CHANNEL_ID)
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        Notification.Builder builder = new Notification.Builder(this);;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder.setChannelId(CHANNEL_ID);
+        }
+        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setSmallIcon(R.mipmap.ic_logo)
                 .setTicker(getText(R.string.app_name))
                 .setContentText(text)
-                .setContentIntent(pendingIntent)
-                .build();
+                .setContentIntent(pendingIntent);
+        Notification notification = builder.build();
         notification.flags |= Notification.FLAG_NO_CLEAR;
         startForeground(ANTITHEFTALARMSERVICE_STATUS, notification);
     }
@@ -547,7 +542,7 @@ public class AntitheftAlarmService extends Service {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer.Builder()
                         .addSound("alarm", R.raw.alarm)
-                        .setStreamType(MediaPlayer.TYPE_NOTIFICATION)
+                        .setStreamType(MediaPlayer.TYPE_MUSIC)
                         .setMaxStream(10)
                         .builder();
             }
@@ -565,6 +560,7 @@ public class AntitheftAlarmService extends Service {
         public void play(String name, boolean isLoop) throws RemoteException {
             if (!isAlarm && mediaPlayer != null) {
                 isAlarm = true;
+                mediaPlayer.setMaxStream();
                 mediaPlayer.play(name, isLoop);
             }
         }
@@ -591,7 +587,8 @@ public class AntitheftAlarmService extends Service {
         public void searchBle() throws RemoteException {
             List<SearchResult> devices = new ArrayList<>();
             SearchRequest request = new SearchRequest.Builder()
-                    .searchBluetoothLeDevice(5000, 1)
+                    .searchBluetoothClassicDevice(3000, 1)
+                    .searchBluetoothLeDevice(3000, 1)
                     .build();
             BluetoothManager.getClient().search(request, new SearchResponse() {
                 @Override
@@ -706,15 +703,17 @@ public class AntitheftAlarmService extends Service {
                         public void onResponse(int code) {
                             Log.i(String.format("%s write onResponse code = %d, event = %d", TAG, code, event));
                             if (code == Const.BLE_REQUEST_SUCCESS) {
-                                try {
-                                    final int N = mRemoteCallbackList.beginBroadcast();
-                                    for (int i = 0; i < N; i++) {
-                                        mRemoteCallbackList.getBroadcastItem(i).onWriteResponse(code, event);
+                                if (FragmentStack.getInstance().size() > 0) {
+                                    try {
+                                        final int N = mRemoteCallbackList.beginBroadcast();
+                                        for (int i = 0; i < N; i++) {
+                                            mRemoteCallbackList.getBroadcastItem(i).onWriteResponse(code, event);
+                                        }
+                                    } catch (RemoteException e) {
+                                        Log.e(TAG + " Caused by " + e.getMessage());
+                                    } finally {
+                                        mRemoteCallbackList.finishBroadcast();
                                     }
-                                } catch (RemoteException e) {
-                                    Log.e(TAG + " Caused by " + e.getMessage());
-                                } finally {
-                                    mRemoteCallbackList.finishBroadcast();
                                 }
                                 startDaemon();
                             }
@@ -730,46 +729,62 @@ public class AntitheftAlarmService extends Service {
                     @Override
                     public void onResponse(int code, byte[] data) {
                         String content = ByteUtils.byteToString(data);
-                        //Toast.makeText(AppContext.getContext(), "read: " + content, Toast.LENGTH_SHORT).show();
-                        //Log.i(String.format("%s, onReadResponse code = %s, data = %s", TAG, code, content));
+                        Log.i(String.format("%s, onReadResponse code = %s, data = %s", TAG, code, content));
                         if (code == Const.BLE_REQUEST_SUCCESS && LibraState.getInstance().getAlarmType() == Const.ALARM_TYPE_PROTECTION) {
                             Daemon.getInstance().pause();
                             try {
-                                if(content.substring(0, 4).equals("6101") && content.contains("4F4B") ||
+                                if((content.substring(0, 4).equals("6101") && content.contains("4F4B")) ||
                                         content.equals("0000000000000000000000000000000000000000")) {
                                     Daemon.getInstance().reStart();
                                     return;
                                 } else {
                                     if (content.substring(0, 4).equals("7501") && content.contains("414C41524D")) {
                                         LibraState.getInstance().setAlarmType(Const.ALARM_TYPE_ALARM);
-                                        play("alarm", true);
+                                        if (!isAlarm) {
+                                            handler.removeCallbacks(stopAlarm);
+                                            play("alarm", true);
+                                            handler.postDelayed(stopAlarm, 1000 * 60 * 3);
+                                        }
                                     } else if (content.substring(0, 4).equals("7601") && content.contains("46494E44")) {
                                         LibraState.getInstance().setAlarmType(Const.ALARM_TYPE_FIND);
-                                        play("alarm", true);
+                                        if (!isAlarm) {
+                                            handler.removeCallbacks(stopAlarm);
+                                            play("alarm", true);
+                                            handler.postDelayed(stopAlarm, 1000 * 60 * 3);
+                                        }
                                     }
                                     getService().updateNotification();
                                 }
-                            } catch (RemoteException e) {
+                            } catch (Exception e) {
                                 Log.e(TAG + " Caused by " + e.getMessage());
                             } finally {
-                                try {
-                                    final int N = mRemoteCallbackList.beginBroadcast();
-                                    for (int i = 0; i < N; i++) {
-                                        mRemoteCallbackList.getBroadcastItem(i).onReadResponse(code, data);
+                                if (FragmentStack.getInstance().size() > 0) {
+                                    try {
+                                        final int N = mRemoteCallbackList.beginBroadcast();
+                                        for (int i = 0; i < N; i++) {
+                                            mRemoteCallbackList.getBroadcastItem(i).onReadResponse(code, data);
+                                        }
+                                    } catch (RemoteException e) {
+                                        Log.e(TAG + " Caused by " + e.getMessage());
+                                    } finally {
+                                        mRemoteCallbackList.finishBroadcast();
                                     }
-                                } catch (RemoteException e) {
-                                    Log.e(TAG + " Caused by " + e.getMessage());
-                                } finally {
-                                    mRemoteCallbackList.finishBroadcast();
                                 }
                             }
                         }
-
-                        //Daemon.getInstance().reStart();
                     }
                 });
             }
         }
+
+        private Runnable stopAlarm = () -> {
+            try {
+                LibraState.getInstance().setAlarmType(Const.ALARM_TYPE_PROTECTION);
+                stop();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        };
 
         @Override
         public void bleNotify(String mac, DetailItem item) throws RemoteException {

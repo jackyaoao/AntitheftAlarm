@@ -1,10 +1,7 @@
 package com.antitheft.alarm.fragments;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +10,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.antitheft.alarm.AppContext;
 import com.antitheft.alarm.activity.MainActivity;
-import com.antitheft.alarm.btkit.BluetoothManager;
 import com.antitheft.alarm.listener.IActivityInteractionListener;
 import com.antitheft.alarm.listener.IFragmentInteractionListener;
 import com.antitheft.alarm.model.DetailItem;
-import com.antitheft.alarm.model.LibraState;
-import com.antitheft.alarm.service.AntitheftAlarmService;
 import com.antitheft.alarm.utils.Const;
 import com.antitheft.alarm.utils.Log;
 import com.antitheft.alarm.utils.MyPrefs;
+import com.antitheft.alarm.utils.SystemUtils;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.utils.ByteUtils;
@@ -55,6 +49,7 @@ public abstract class BaseFragment extends Fragment implements IActivityInteract
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initData();
+        MyPrefs.getInstance().put(Const.POWER_CONNECTED, SystemUtils.isChargingDisable(getContext()));
     }
 
     @Override
@@ -77,15 +72,12 @@ public abstract class BaseFragment extends Fragment implements IActivityInteract
     }
 
     protected void goTo(int fragmentId) {
-/*        if (interactionListener != null) {
-            interactionListener.onFragmentInteraction(fragmentId, arg);
-        }*/
         parentActivity.showFragment(fragmentId, arg);
     }
 
     protected void goBack() {
         FragmentStack.getInstance().pop();
-        goTo(FragmentStack.getInstance().getTail());
+        goTo(FragmentStack.getInstance().getTop());
     }
 
     public void setArg(Object arg) {
@@ -250,6 +242,11 @@ public abstract class BaseFragment extends Fragment implements IActivityInteract
     @Override
     public void onUnNotifyResponse(int code) {
 
+    }
+
+    @Override
+    public void onPowerChanged(boolean plugged) {
+        Log.i("onPowerChanged plugged: " + plugged);
     }
 
     abstract public int getLayoutId();

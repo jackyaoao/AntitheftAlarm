@@ -9,9 +9,9 @@ import com.inuker.bluetooth.library.BluetoothContext;
 /**
  * <The trouble with the world is that the stupid are sure and the intelligent are full of doubt.>
  * <p>
- * HappyBaby
+ * AppContext
  * <p>
- * 作者：Jacky.Ao on 2017/11/16 15:44
+ * 作者：Jacky.Ao on 2019/11/16 15:44
  * <p>
  * 邮箱: jiazhi.ao@gmail.com
  */

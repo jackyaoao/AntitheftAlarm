@@ -23,7 +23,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/top_margin"
         android:layout_marginBottom="@dimen/bottom_margin"
-        android:text="MY007 Lost"
+        android:text="@string/lost"
         android:textColor="@android:color/white"
         android:textSize="@dimen/text_30sp" />
 
@@ -55,7 +55,7 @@
             android:textSize="@dimen/text_18sp"
             android:layout_marginTop="@dimen/top_margin"
             android:textColor="@android:color/white"
-            android:text="Oops~please make sure:" />
+            android:text="@string/lost1" />
 
         <TextView
             android:id="@+id/state_desc2"
@@ -64,7 +64,7 @@
             android:layout_centerHorizontal="true"
             android:lineSpacingMultiplier = "1.2"
             android:layout_marginTop="@dimen/margin_10dp"
-            android:text="1. Bluetooth ON"
+            android:text="@string/lost2"
             android:textColor="@android:color/white"
             android:textSize="@dimen/text_18sp" />
 
@@ -75,7 +75,7 @@
             android:layout_centerHorizontal="true"
             android:lineSpacingMultiplier = "1.2"
             android:layout_marginTop="@dimen/margin_10dp"
-            android:text="2. MY007 ON"
+            android:text="@string/lost3"
             android:textColor="@android:color/white"
             android:textSize="@dimen/text_18sp" />
 
@@ -86,7 +86,7 @@
             android:layout_centerHorizontal="true"
             android:lineSpacingMultiplier = "1.2"
             android:layout_marginTop="@dimen/margin_10dp"
-            android:text="3. MY007 close to your phone"
+            android:text="@string/lost4"
             android:textColor="@android:color/white"
             android:textSize="@dimen/text_18sp" />
     </LinearLayout>
@@ -115,7 +115,7 @@
             android:layout_alignLeft="@id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connecting..."
+            android:text="@string/connecting"
             android:textSize="@dimen/text_18sp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/margin_15dp"

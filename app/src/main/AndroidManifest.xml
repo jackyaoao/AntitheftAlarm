@@ -31,7 +31,9 @@
             android:screenOrientation="portrait"
             android:taskAffinity=""
             android:theme="@style/ActivityDialogStyle" />
-
+        <activity
+            android:name=".privacy.PrivacyPolicyActivity"
+            android:screenOrientation="portrait" />
         <receiver
             android:name=".service.BootReceiver"
             android:enabled="true"

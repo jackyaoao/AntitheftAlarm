@@ -73,8 +73,8 @@ public class NumericKeyboard extends View {
         circle_pressed_color = a.getColor(R.styleable.NumericKeyboard_circle_pressed_color, Color.parseColor("#8a8a8a"));
         number_color = a.getColor(R.styleable.NumericKeyboard_number_color, Color.parseColor("#8a8a8a"));
         stroke_width = a.getDimensionPixelSize(R.styleable.NumericKeyboard_stroke_width, 8);
-        number_size = a.getDimensionPixelSize(R.styleable.NumericKeyboard_number_size, 120);
-        radius = a.getDimensionPixelSize(R.styleable.NumericKeyboard_circle_radius, 90);
+        number_size = a.getDimensionPixelSize(R.styleable.NumericKeyboard_number_size, 100);
+        radius = a.getDimensionPixelSize(R.styleable.NumericKeyboard_circle_radius, 70);
         a.recycle();
         initData(context);// 初始化数据
     }

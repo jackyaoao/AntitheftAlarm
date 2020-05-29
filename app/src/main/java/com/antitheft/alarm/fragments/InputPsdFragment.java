@@ -6,14 +6,9 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
-import com.antitheft.alarm.AppContext;
 import com.antitheft.alarm.R;
-import com.antitheft.alarm.model.LibraState;
 import com.antitheft.alarm.utils.Const;
-import com.antitheft.alarm.utils.Log;
 import com.antitheft.alarm.utils.MyPrefs;
-import com.antitheft.alarm.utils.SystemUtils;
 import com.antitheft.alarm.view.NumericKeyboard;
 import com.antitheft.alarm.view.PasswordTextView;
 
@@ -97,8 +92,7 @@ public class InputPsdFragment extends BaseFragment implements NumericKeyboard.On
 
     @Override
     public void onSucceeded() {
-        fingerprtint_view.setVisibility(View.GONE);
-        keyboard.setShowFingprintFlag(false);
+        goTo(Const.LIBRA_CONNECTED_STATE_ID);
         parentActivity.cancelAlarm();
     }
 
@@ -173,15 +167,12 @@ public class InputPsdFragment extends BaseFragment implements NumericKeyboard.On
                         goTo(Const.LIBRA_CONNECTED_STATE_ID);
                     }
                 } else {
-                    showShortToast(getString(R.string.pwd_err));
+                    showShortToast(getString(R.string.not_equals));
                 }
             }
         } else if (action == Const.INPUT_ENTER_UNLOCK) {
             if (MyPrefs.getInstance().getString(Const.KEY_PSD).equals(password)) {
-                if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_DISCONNECTED) {
-                    goTo(Const.LIBRA_CONNECTED_STATE_ID);
-                    return;
-                }
+                goTo(Const.LIBRA_CONNECTED_STATE_ID);
                 parentActivity.cancelAlarm();
             } else {
                 showShortToast(getString(R.string.pwd_err));
@@ -211,7 +202,7 @@ public class InputPsdFragment extends BaseFragment implements NumericKeyboard.On
         verify();
     }
 
-    @Override
+    /*@Override
     public void onWriteResponse(int code, int event) {
         Log.i(String.format("%s write onResponse code = %d, event = %d", TAG, code, event));
         if (code == Const.BLE_REQUEST_SUCCESS) {
@@ -228,19 +219,14 @@ public class InputPsdFragment extends BaseFragment implements NumericKeyboard.On
                 bleReStartRead();
             }
         }
-    }
-
-    @Override
-    public void onReadResponse(int code, byte[] data) {
-        super.onReadResponse(code, data);
-    }
+    }*/
 
     @Override
     public void onBackPressed() {
         if (action == Const.INPUT_RESET_PASSWORD) {
             goBack();
         } else if (action == Const.INPUT_ENTER_UNLOCK) {
-            showShortToast("Please unlock");
+            showShortToast(getResString(R.string.unlock));
             return;
         } else {
             parentActivity.finish();

@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/top_margin"
-        android:text="To unlock the Libra conveniently, we need your permission use your preset finger print,and screen unlock passcode."
+        android:text="@string/auth"
         style="@style/style_text"
         android:layout_centerHorizontal="true"/>
 
@@ -22,7 +22,7 @@
         android:layout_marginBottom="@dimen/bottom_margin"
         android:paddingLeft="@dimen/left_margin"
         android:paddingRight="@dimen/right_margin"
-        android:text="Allow"
+        android:text="@string/allow"
         android:layout_alignParentBottom="true"
         style="@style/bnt_style"
         android:layout_centerHorizontal="true"/>

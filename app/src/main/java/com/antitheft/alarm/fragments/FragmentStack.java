@@ -24,13 +24,13 @@ public class FragmentStack {
         return instance;
     }
 
-
-
     public void push(int id) {
-        if (!fragmentIds.contains(id)) {
-            Log.i("FragmentStack push: " + id);
-            fragmentIds.push(id);
+        if (fragmentIds.contains(id)) {
+            Log.i("FragmentStack remove: " + id);
+            fragmentIds.remove((Integer) id);
         }
+        Log.i("FragmentStack push: " + id);
+        fragmentIds.push(id);
     }
 
     public void pop() {
@@ -42,14 +42,6 @@ public class FragmentStack {
         int id = fragmentIds.peek();
         Log.i("FragmentStack getTop: " + id);
         return id;
-    }
-
-    public int getTail() {
-        if (fragmentIds.size() > 0) {
-            int id = fragmentIds.elementAt(fragmentIds.size() - 1);
-            return id;
-        }
-        return -1;
     }
 
     public int size() {

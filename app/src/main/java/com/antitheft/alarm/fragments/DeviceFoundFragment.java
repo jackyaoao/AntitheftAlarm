@@ -48,7 +48,7 @@ public class DeviceFoundFragment extends BaseFragment {
             devicesAdapter.setOnItemViewClickListener(new BluetoothDevicesAdapter.OnItemViewClickListener() {
                 @Override
                 public void onItemClick(int position) {
-                    FragmentStack.getInstance().clear();
+                    //FragmentStack.getInstance().clear();
                     bleDisconnect(LibraState.getInstance().getMac());
                     LibraState.getInstance().setMac(deviceList.get(position).getAddress());
                     goTo(Const.LIBRA_CONNECTED_STATE_ID);

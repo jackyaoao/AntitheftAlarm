@@ -117,7 +117,7 @@ public class BaseActivity extends FragmentActivity {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                onBond();
+                onBound();
             }
         }
         // Called when the connection with the service disconnects unexpectedly
@@ -260,7 +260,7 @@ public class BaseActivity extends FragmentActivity {
 
     }
 
-    public void onBond() {
+    public void onBound() {
 
     }
 

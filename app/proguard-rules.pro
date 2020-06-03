@@ -19,3 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep public class * extends androidx.fragment.app.FragmentActivity
+-keep public class * extends androidx.fragment.app.Fragment
+-keep public class * extends android.app.Service
+-keep public class * extends android.app.Activity
+-keep class * implements Android.os.Parcelable { # 保持Parcelable不被混淆
+    public static final Android.os.Parcelable$Creator *;
+}
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

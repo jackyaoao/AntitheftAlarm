@@ -1,5 +1,6 @@
 package com.antitheft.alarm.mediaplay;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import androidx.annotation.IntDef;
@@ -27,8 +28,9 @@ public final class MediaPlayer {
     private int streamID;
     private HashMap<String, Integer> soundIdList = new HashMap<>();
 
-    private MediaPlayer(@TYPE int streamType, int maxStream, HashMap<String, Integer> soundList){
-        soundPool = new SoundPool(maxStream, streamType, 100);
+    private MediaPlayer(@TYPE int streamType, int maxStream, HashMap<String, Integer> soundList) {
+        AudioManager audioManager = (AudioManager) AppContext.getContext().getSystemService(Context.AUDIO_SERVICE);
+        soundPool = new SoundPool(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), TYPE_MUSIC, 100);
         for (Map.Entry<String, Integer> entry : soundList.entrySet()) {
             int id = soundPool.load(AppContext.getContext(), entry.getValue(), 1);
             soundIdList.put(entry.getKey(), id);
@@ -56,12 +58,20 @@ public final class MediaPlayer {
 
     public void release() {
         soundIdList.clear();
+        soundPool.autoPause();
         soundPool.stop(streamID);
         soundPool.release();
+        soundPool = null;
     }
 
     public void stop() {
         soundPool.stop(streamID);
+    }
+
+    public void setMaxStream() {
+        AudioManager audioManager = (AudioManager) AppContext.getContext().getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,audioManager.getStreamMaxVolume
+                (AudioManager.STREAM_MUSIC), AudioManager.FLAG_PLAY_SOUND);
     }
 
     public static class Builder {

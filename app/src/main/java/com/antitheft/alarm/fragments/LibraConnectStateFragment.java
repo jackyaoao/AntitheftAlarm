@@ -14,6 +14,7 @@ import com.antitheft.alarm.R;
 import com.antitheft.alarm.model.LibraState;
 import com.antitheft.alarm.utils.Const;
 import com.antitheft.alarm.utils.Log;
+import com.antitheft.alarm.utils.MyPrefs;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.utils.ByteUtils;
 
@@ -64,7 +65,7 @@ public class LibraConnectStateFragment extends BaseFragment {
 
     @Override
     public void initData() {
-        LibraState.getInstance().setAlarmType(Const.ALARM_TYPE_PROTECTION);
+        //LibraState.getInstance().setAlarmType(Const.ALARM_TYPE_PROTECTION);
         mac = LibraState.getInstance().getMac();
         if (mac != null) {
             if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_DISCONNECTED) {
@@ -80,29 +81,30 @@ public class LibraConnectStateFragment extends BaseFragment {
         /** Libra connected */
         if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_CONNECTED) {
             progress_view.setVisibility(View.GONE);
-            state_str.setText("MY007 Connected");
+            state_str.setText(R.string.connected);
             state_desc1.setVisibility(View.GONE);
-            state_desc2.setText("Charge your device through MY007 to protect.");
-            state_desc3.setText("The alarm will go on if charger is unplugged.");
+            state_desc2.setText(R.string.connected1);
+            state_desc3.setText(R.string.connected2);
             state_desc4.setVisibility(View.GONE);
             libra_state.setImageResource(R.drawable.libra_connected);
-            handler.postDelayed(standby, 2 * 1000);
+            standby();
         } else {/** Libra lost*/
             handler.removeCallbacks(standby);
             rotate();
-            state_str.setText("MY007 Lost");
+            state_str.setText(R.string.lost);
             state_desc1.setVisibility(View.VISIBLE);
-            state_desc1.setText("Oops~please make sure:");
-            state_desc2.setText("1. Bluetooth ON");
-            state_desc3.setText("2. MY007 ON");
+            state_desc1.setText(R.string.lost1);
+            state_desc2.setText(R.string.lost2);
+            state_desc3.setText(R.string.lost3);
             state_desc4.setVisibility(View.VISIBLE);
-            state_desc4.setText("3. MY007 close to your phone");
+            state_desc4.setText(R.string.lost4);
             libra_state.setImageResource(R.drawable.libra_lost);
         }
     }
 
     private Runnable standby = () -> {
-        if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_CONNECTED) {
+        if (LibraState.getInstance().getLibraState() == Const.STATUS_DEVICE_CONNECTED &&
+                MyPrefs.getInstance().getBoolean(Const.POWER_CONNECTED)) {
             goTo(Const.LIBRA_PROTECTED_ID);
         }
     };
@@ -139,7 +141,7 @@ public class LibraConnectStateFragment extends BaseFragment {
         updateView();
     }
 
-    @Override
+/*    @Override
     public void onReadResponse(int code, byte[] data) {
         super.onReadResponse(code, data);
         if (code == Const.BLE_REQUEST_SUCCESS) {
@@ -148,6 +150,21 @@ public class LibraConnectStateFragment extends BaseFragment {
             if ((content.substring(0, 4).equals("7501") && content.contains("414C41524D")) ||
                     (content.substring(0, 4).equals("7601") && content.contains("46494E44"))) {
                 handler.removeCallbacks(standby);
+            }
+        }
+    }*/
+
+    @Override
+    public void onWriteResponse(int code, int event) {
+        Log.i(String.format("%s write onResponse code = %d, event = %d", TAG, code, event));
+        if (code == Const.BLE_REQUEST_SUCCESS) {
+            if (event == Const.BLE_FOUND_ACK_W_EVENT || event == Const.BLE_REMOVE_ALARM_W_EVENT) {
+                bleWrite(LibraState.getInstance().getMac(),
+                        LibraState.getInstance().getDetailItem(),
+                        new String(new byte[20]).getBytes(), Const.BLE_CLEAR_W_EVENT);
+            } else if (event == Const.BLE_CLEAR_W_EVENT) {
+                bleReStartRead();
+                standby();
             }
         }
     }
@@ -160,5 +177,17 @@ public class LibraConnectStateFragment extends BaseFragment {
     @Override
     public void onBackPressed() {
         parentActivity.finish();
+    }
+
+    @Override
+    public void onPowerChanged(boolean plugged) {
+        super.onPowerChanged(plugged);
+        if (plugged) {
+            standby();
+        }
+    }
+
+    private void standby() {
+        handler.postDelayed(standby, 1 * 1000);
     }
 }

@@ -1,6 +1,7 @@
 package com.antitheft.alarm.fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.antitheft.alarm.R;
+import com.antitheft.alarm.activity.MainActivity;
+import com.antitheft.alarm.privacy.PrivacyPolicyActivity;
 import com.antitheft.alarm.utils.Const;
 
 import java.util.Set;
@@ -29,6 +32,8 @@ public class SettingFragment extends BaseFragment {
     LinearLayout pairing;
     @BindView(R.id.restpsd)
     LinearLayout restpsd;
+    @BindView(R.id.manual)
+    LinearLayout manual;
 
     private static SettingFragment instance;
 
@@ -60,13 +65,21 @@ public class SettingFragment extends BaseFragment {
         return Const.SETTING_FRAGMENT_ID;
     }
 
-    @OnClick({R.id.pairing, R.id.restpsd})
+    @OnClick({R.id.pairing, R.id.restpsd, R.id.manual})
     public void onClick(View v) {
-        if (v.getId() == R.id.pairing) {
-            goTo(DEVICE_PAIRING_ID);
-        } else if (v.getId() == R.id.restpsd) {
-            arg = Const.INPUT_RESET_PASSWORD;
-            goTo(Const.INPUT_PASSWORD_ID);
+        switch (v.getId()) {
+            case R.id.pairing:
+                goTo(DEVICE_PAIRING_ID);
+                break;
+            case R.id.restpsd:
+                arg = Const.INPUT_RESET_PASSWORD;
+                goTo(Const.INPUT_PASSWORD_ID);
+                break;
+            case R.id.manual:
+                Intent intent = new Intent(getContext(), PrivacyPolicyActivity.class);
+                intent.putExtra(Const.PRIVACY, 2);
+                startActivity(intent);
+                break;
         }
     }
 

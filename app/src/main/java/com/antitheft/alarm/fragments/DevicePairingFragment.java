@@ -67,7 +67,7 @@ public class DevicePairingFragment extends BaseFragment {
 
     @Override
     public void onSearchStarted() {
-        showShortToast("onSearchStarted");
+        //showShortToast("onSearchStarted");
     }
 
     @Override
@@ -78,12 +78,12 @@ public class DevicePairingFragment extends BaseFragment {
 
     @Override
     public void onSearchStopped() {
-        showShortToast("onSearchStopped");
+//        showShortToast("onSearchStopped");
     }
 
     @Override
     public void onSearchCanceled() {
-        showShortToast("onSearchCanceled");
+//        showShortToast("onSearchCanceled");
     }
 
     @Override

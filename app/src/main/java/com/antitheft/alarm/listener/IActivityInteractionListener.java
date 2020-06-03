@@ -26,5 +26,5 @@ public interface IActivityInteractionListener {
     void onNotify(DetailItem item, byte[] data);
     void onNotifyResponse(int code);
     void onUnNotifyResponse(int code);
-
+    void onPowerChanged(boolean plugged);
 }

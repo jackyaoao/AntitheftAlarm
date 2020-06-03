@@ -51,6 +51,7 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
     private SparseArray<BaseFragment> fragmentArrayList = new SparseArray<>();
     private Object arg = null;
     public List<String> deniedList;
+    private long curVersionCode = 0;
 
     private static final String PERMISSIONS[] = {
             "android.permission.ACCESS_FINE_LOCATION",
@@ -205,6 +206,12 @@ public class MainActivity extends BaseActivity implements IFragmentInteractionLi
                             fragmentArrayList.get(fragmentId).onPowerChanged(MyPrefs.getInstance().getBoolean(Const.POWER_CONNECTED));
                         }
                     }
+                } else if (action.equals(AntitheftAlarmService.BLE_POWER_CONNECTED_ACTION)) {
+                    int fragmentId = FragmentStack.getInstance().getTop();
+                    if (fragmentArrayList.get(fragmentId) != null) {
+                        fragmentArrayList.get(fragmentId).onPowerChanged(MyPrefs.getInstance().getBoolean(Const.POWER_CONNECTED));
+                    }
+
                 }
             }
         }
